@@ -1,0 +1,21 @@
+Table 3: 18 cell type categories used in our example, based on simplifications of the phenotypes form Table 2
+
+Number 	Cell type category
+1	Apoptotic tumour cells
+2	CD31+CD38+ cells
+3	CD4 T cells
+4	CD8 T cells
+5	Dendritic cells
+6	Fibroblasts
+7	Granulocytes
+8	ILC
+9	M1-like macrophages
+10	M2-like macrophages
+11	Macrophages_undefined
+12	Monocytes
+13	Proliferating tumour cells
+14	T cells undefined
+15	Tregs
+16	Tumour cells
+17	Undefined
+18	Vessels
