@@ -1,0 +1,47 @@
+Table 2: 44 different phenotypes used in our example data, defined based on the expressed markers
+
+Number	Shortened phenotype name	Full phenotype name
+1	Apoptotic_Bcat+_HLA-DR+_tum	apoptotic β-catenin positive HLA-DR positive tumor cells
+2	Apoptotic_Bcat+_Prol_tum	apoptotic β-catenin positive proliferating tumor cells
+3	Apoptotic_Bcat+_tum	apoptotic β-catenin positive tumor cells
+4	Bcat+_CD15+_tum	β-catenin positive CD15 positive tumor cells
+5	Bcat+_FOXP3+_PDL1+_tum	β-catenin positive FOXP3 positive PDL1 positive tumor cells
+6	Bcat+_HLA-DR+_Prol_tum	β-catenin positive HLA-DR positive proliferating tumor cells
+7	Bcat+_HLA-DR+_TGFb+_tum	β-catenin positive HLA-DR positive TGFβ positive tumor cells
+8	Bcat+_HLA-DR+_tum	β-catenin positive HLA-DR positive tumor cells
+9	Bcat+_Prol_TGFb+_tum	β-catenin positive TGFβ positive proliferating tumor cells
+10	Bcat+_Prol_tum	β-catenin positive proliferating tumor cells
+11	Bcat+_TGFb+_tum	β-catenin positive TGFβ positive tumor cells
+12	Bcat+_tum	β-catenin positive tumor cells
+13	CD11c+_cells	CD11c positive cells
+14	CD11c+_HLA-DR+_macrophages	CD11c positive HLA-DR positive macrophages
+15	CD163+_HLA-DR+_macrophages	CD163 positive HLA-DR positive macrophages
+16	CD38+_cells	CD38 positive cells
+17	CD4+_Tcells	CD4 positive T cells
+18	CD45RO_undefined	undefined CD45RO positive cells
+19	CD57+_cells	CD57 positive cells
+20	CD8-_Tcells	CD8 negative T cells
+21	CD8+_Tcells	CD8 positive T cells
+22	D2-40+_fibroblasts	D2-40 positive fibroblasts
+23	D2-40+_TGFb+_fibroblasts	D2-40 positive TGFβ positive fibroblasts
+24	D2-40+_vessels	D2-40 positive vessels
+25	Fibroblasts	fibroblasts
+26	Granulocytes	granulocytes
+27	HLA-DR+_fibroblasts	HLA-DR positive fibroblasts
+28	HLA-DR+_macrophages	HLA-DR positive macrophages
+29	HLA-DR+_monocytes	HLA-DR positive monocytes
+30	ICOS+_Tregs	ICOS positive regulatory T cells
+31	ILC	innate lymphoid cells
+32	Intraepithelial_CD4+_PD1+_Tcells	intraepithelial CD4 positive PD1 positive T cells
+33	Intraepithelial_CD8+_Tcells	intraepithelial CD8 positive T cells
+34	Macrophages_undefined	undefined macrophages
+35	Monocytes	monocytes
+36	Prol_Tcells	proliferating T cells
+37	Tcells_undefined	undefined T cells
+38	TGFb+_tum	TGFβ positive tumor cells
+39	TGFb+_vessels	TGFβ positive vessels
+40	Tregs	regulatory T cells
+41	Unknown	unknown cells
+42	Vessels	vessels
+43	VISTA+_CD31+_CD38+_cells	VISTA positive CD31 positive CD38 positive cells
+44	VISTA+_vessels	VISTA positive vessels
