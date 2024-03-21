@@ -1,0 +1,38 @@
+Table 1: 35 marker FFPE panel for imaging mass cytometry, modified from Ijsselsteijn et. al, 2019. Shortened names are used in the example code.
+
+Target	Shortened name
+β-Catenin	Bcatenin
+HLA-DR	HLA.DR
+CD20	CD20
+CD68	CD68
+CD11b	CD11b
+CD4	CD4
+CD8α	CD8a
+CD31	CD31
+TGFβ	TGFbeta
+Granzyme B	Granzyme.B
+CD57	CD57
+Ki-67	Ki.67
+CD3	CD3
+TIM-3	TIM.3
+LAG3	LAG.3
+PD-L1	PD.L1
+VISTA	VISTA
+FoxP3	FOXP3
+PD-1	PD.1
+ICOS	ICOS
+IDO	IDO
+CD14	CD14
+CD204	CD204
+CD45RO	CD45RO
+D2-40	D2.40
+CD103	CD103
+CD38	CD38
+T-bet	Tbet
+CD15	CD15
+Cleaved Caspase-3	C_Caspase
+CD163	CD163
+CD7	CD7
+CD11c	CD11c
+Vimentin	Vimentin
+Pan-Keratin	Keratin
