@@ -1,0 +1,689 @@
+---
+title: "CyTOF_TMA_analysis"
+author: "Z.Loncova"
+params:
+  datadir:  "../../../data/imaging/Single_cell_data_markers"
+  resultsdir: "../../../results/figures"  
+---
+
+Composition of immune cells
+```{r setup, include=FALSE}
+library(rlang)
+library(dplyr)
+library(reshape)
+library(ggplot2)
+library(cowplot)
+
+if (!dir.exists(params$resultsdir)){ dir.create(params$resultsdir, recursive = T) }
+
+name.list.samples <- c(      
+"17_10053_ROI001",
+"17_10053_ROI002",
+"17_10053_ROI003",
+"17_10053_ROI004",
+"17_10053_ROI005",
+"17_10053_ROI006",
+"17_10053_ROI007",
+"17_10053_ROI008",
+"17_8146_ROI003",
+"17_8146_ROI004",
+"17_8146_ROI005",
+"17_8146_ROI006",
+"17_8146_ROI007",
+"17_8146_ROI008",
+"17_8146_ROI009",
+"17_8146_ROI010",
+"18_02076_ROI001",
+"18_02076_ROI002",
+"18_02076_ROI003",
+"18_02076_ROI004",
+"18_02076_ROI005",
+"18_02076_ROI006",
+"18_02076_ROI007",
+"18_02076_ROI008",
+"18_12804_ROI002",
+"18_12804_ROI003",
+"18_12804_ROI005",
+"18_12804_ROI006",
+"18_12804_ROI007",
+"18_12804_ROI008",
+"18_12804_ROI010",
+"18_12816_ROI001",
+"18_12816_ROI002",
+"18_12816_ROI003",
+"18_12816_ROI004",
+"18_12816_ROI005",
+"18_12816_ROI006",
+"18_12816_ROI007",
+"18_12816_ROI008",
+"ROI001_17_9065_TB1",
+"ROI002_17_9065_TB2",
+"ROI003_17_9065_TB3",
+"ROI004_17_9065_IM1",
+"ROI005_17_9065_IM2" 
+)
+
+pheno <- NULL
+for(j in 1:length(name.list.samples)){
+  tab01 <- read.csv(paste0(params$datadir, "/", name.list.samples[j], "_with_all_phenotypes_all_cells_18caths.csv"), stringsAsFactors = FALSE, encoding = "UTF-8")
+  pheno2<- unique(tab01$category)   
+  pheno <- c(pheno2,pheno)
+}
+uniq.pheno <- sort(unique(pheno))
+
+dens.all <- matrix(0,1,length(name.list.samples)) 
+rownames(dens.all) <- "Total cell density"
+colnames(dens.all) <- name.list.samples
+dens.pheno <- matrix(0,length(uniq.pheno),length(name.list.samples))
+rownames (dens.pheno) <- uniq.pheno
+colnames(dens.pheno) <- name.list.samples
+for(i in 1:length(name.list.samples)){
+  tab01 <- read.csv(paste0(params$datadir, "/", name.list.samples[i], "_with_all_phenotypes_all_cells_18caths.csv"), stringsAsFactors = FALSE, encoding = "UTF-8")
+  dens.all[i] <- nrow(tab01) # counts of all cells per sqmm
+  for (r in 1:length(uniq.pheno)) {
+    tab02 <- tab01[tab01$category == paste0(uniq.pheno[r]),] 
+    dens.pheno[r,i] <-nrow(tab02)
+  }
+}
+
+dens.pheno.final <-as.data.frame(cbind(rowMeans(dens.pheno[,9:16]),rowMeans(dens.pheno[,40:44]),rowMeans(dens.pheno[,1:8]),
+                              rowMeans(dens.pheno[,17:24]),rowMeans(dens.pheno[,25:31]),rowMeans(dens.pheno[,32:39])))
+colnames(dens.pheno.final) <- c('CRC02','CRC03','CRC04','CRC13','CRC26','CRC26LM')
+dens.all.final <- as.data.frame(cbind(sum(dens.all[,9:16]),sum(dens.all[,40:44]),sum(dens.all[,1:8]),
+                              sum(dens.all[,17:24]),sum(dens.all[,25:31]),sum(dens.all[,32:39])))
+colnames(dens.all.final) <- c('CRC02','CRC03','CRC04','CRC13','CRC26','CRC26LM')
+organoids <-  c('CRC02','CRC03','CRC04','CRC13','CRC26','CRC26LM')
+```
+
+
+Cell (phenotype) density
+```{r}
+im.area <- (1000*1000)/1000000  
+pheno <- NULL
+for(j in 1:length(name.list.samples)){
+  tab01 <- read.csv(paste0(params$datadir, "/", name.list.samples[j], "_with_all_phenotypes_all_cells_18caths.csv"), stringsAsFactors = FALSE,
+                    encoding = "UTF-8")
+  pheno2<- unique(tab01$phenotype)
+  pheno <- c(pheno2,pheno)
+}
+uniq.pheno <- unique(pheno)
+
+ordering <- c (   'Tcells_undefined',
+                  'Prol_Tcells',
+                  'CD8+_Tcells',
+                  'Intraepithelial_CD8+_Tcells',
+                  'Intraepithelial_CD4+_PD1+_Tcells',
+                  'CD4+_Tcells',
+                  'CD8-_Tcells',
+                  'Tregs',
+                  'ICOS+_Tregs',
+                  'CD57+_cells',
+                  'CD45RO_undefined',
+                  'CD11c+_cells',
+                  'CD38+_cells',
+                  'VISTA+_CD31+_CD38+_cells',
+                  'ILC', # innate lymphoid cells
+                  'CD163+_HLA-DR+_macrophages',
+                  'HLA-DR+_macrophages',
+                  'CD11c+_HLA-DR+_macrophages',
+                  'Macrophages_undefined',
+                  'HLA-DR+_monocytes',
+                  'Monocytes',
+                  'Granulocytes',
+                  'Fibroblasts',
+                  'HLA-DR+_fibroblasts',
+                  'D2-40_fibroblasts',
+                  'D2-40+_TGFb+_fibroblasts',
+                  'TGFb+_tum',
+                  'Bcat+_FOXP3+_PDL1+_tum',
+                  'Bcat+_CD15+_tum',
+                  'Bcat+_Prol_tum',
+                  'Bcat+_HLA-DR+_Prol_tum',
+                  'Bcat+_HLA-DR+_tum',
+                  'Bcat+_TGFb+_tum',
+                  'Bcat+_tum',
+                  'Bcat+_HLA-DR+_TGFb+_tum',
+                  'Bcat+_Prol_TGFb+_tum',
+                  'Apoptotic_Bcat+_Prol_tum',
+                  'Apoptotic_Bcat+_tum',
+                  'Apoptotic_Bcat+_HLA-DR+_tum',
+                  'Vessels',
+                  'D2-40+_vessels',
+                  'TGFb+_vessels',
+                  'VISTA+_vessels',
+                  'Unknown'
+                  )
+
+dens.all <- matrix(0,1,length(name.list.samples)) 
+rownames(dens.all) <- "Total cell density"
+colnames(dens.all) <- name.list.samples
+dens.pheno <- matrix(0,length(ordering),length(name.list.samples)) 
+rownames (dens.pheno) <- ordering
+colnames(dens.pheno) <- name.list.samples
+for(i in 1:length(name.list.samples)){
+  tab01 <- read.csv(paste0(params$datadir, "/", name.list.samples[i], "_with_all_phenotypes_all_cells_18caths.csv"), stringsAsFactors = FALSE,
+                    encoding = "UTF-8")
+  dens.all[i] <- nrow(tab01)/im.area # all cells per sqmm
+    for (r in 1:length(ordering)) {
+    tab02 <- tab01[tab01$phenotype == paste0(ordering[r]),] 
+    dens.pheno[r,i] <-nrow(tab02)/im.area
+    }
+}   
+
+dens.pheno.final43 <- as.data.frame(cbind(rowMeans(dens.pheno[,9:16]),rowMeans(dens.pheno[,40:44]),rowMeans(dens.pheno[,1:8]),
+                              rowMeans(dens.pheno[,17:24]),rowMeans(dens.pheno[,25:31]),rowMeans(dens.pheno[,32:39])))
+colnames(dens.pheno.final43) <- c('CRC02','CRC03','CRC04','CRC13','CRC26','CRC26LM')
+dens.all.final <- as.data.frame(cbind(sum(dens.all[,9:16]),sum(dens.all[,40:44]),sum(dens.all[,1:8]),
+                              sum(dens.all[,17:24]),sum(dens.all[,25:31]),sum(dens.all[,32:39])))
+colnames(dens.all.final) <- c('CRC02','CRC03','CRC04','CRC13','CRC26','CRC26LM')
+
+colours.key <- c(                         
+  '#53F328', 
+  '#62D243',
+  '#37FB03',
+  '#299C0A',
+  '#71BD5D',
+  '#1D590D',
+  '#0F590D',
+  '#478A44',
+  '#043A02',
+  '#94FF33',
+  '#6AAB2F',
+  '#5AA615',
+  '#4BD82E',
+  '#1F820A',
+  '#04F90E',
+  '#0ACC55', 
+  '#13A14A',
+  '#53D786',
+  '#53AF77',
+  '#46FBC3', 
+  '#73D5F1',
+  '#2896E5',
+  '#9873F1', 
+  '#754CDA',
+  '#5E3DAF',
+  '#062697', 
+  '#B61818', 
+  '#FB1313',
+  '#BD2207',
+  '#FF5004',
+  '#F3842C',
+  '#F99E0B',
+  '#BB4B0B',
+  '#F77B13',
+  '#F7A413',
+  '#F7C613',
+  '#C6A839',
+  '#C67939',
+  '#F39E0B',
+  '#C6398C', 
+  '#F70795',
+  '#9F0560',
+  '#B831F7',
+  '#3E3D3D' 
+)
+
+data.counts <- as.matrix(dens.pheno.final43)
+data.countss <- rbind(data.counts[1:9,], data.counts[11:12,], data.counts[14:44,])
+
+rownames(data.countss) <- c(
+  '01 - Tcells undefined', 
+  '02 - Proliferating Tcells',
+  '03 - CD8+ Tcells',
+  '04 - Intraepithelial CD8+ Tcells',
+  '05 - Intraepithelial CD4+PD1+ Tcells',
+  '06 - CD4+ Tcells',
+  '07 - CD8- Tcells',
+  '08 - Tregs',
+  '09 - ICOS+ Tregs',
+  '10 - CD45RO undefined',
+  '11 - CD11c+ cells',
+  '12 - VISTA+ CD31+CD38+ cells',
+  '13 - ILC',
+  '14 - CD163+HLA-DR+ macrophages',
+  '15 - HLA-DR+ macrophages',
+  '16 - CD11c+HLA-DR+ macrophages',
+  '17 - Macrophages undefined',
+  '18 - HLA-DR+ monocytes',
+  '19 - Monocytes',
+  '20 - Granulocytes',
+  '21 - Fibroblasts',
+  '22 - HLA-DR+ fibroblasts',
+  '23 - D2-40+ fibroblasts',
+  '24 - D2-40+TGFb+ fibroblasts',
+  '25 - TGFb+ tumor cells',
+  '26 - Bcat+FOXP3+PDL1+ tumor cells',
+  '27 - Bcat+CD15+ tumor cells',
+  '28 - Bcat+ proliferating tumor cells',
+  '29 - Bcat+HLA-DR+ proliferating tumor cells',
+  '30 - Bcat+HLA-DR+ tumor cells',
+  '31 - Bcat+TGFb+ tumor cells',
+  '32 - Bcat+ tumor cells',
+  '33 - Bcat+HLA-DR+TGFb+ tumor cells',
+  '34 - Bcat+TGFb+ proliferating tumor cells',
+  '35 - Apoptotic Bcat+ proliferating tumor cells',
+  '36 - Apoptotic Bcat+ tumor cells',
+  '37 - Apoptotic Bcat+HLA-DR+ tumor cells',
+  '38 - Vessels',
+  '39 - D2-40+ vessels',
+  '40 - TGFb+ vessels',
+  '41 - VISTA+ vessels',
+  '42 - Undefined cells'
+)
+data.counts <- as.matrix(data.countss[1:41,])
+melted.counts <- reshape2::melt(data.counts)
+colnames(melted.counts) <- c("X1","X2","value")
+#pdf(file.path(params$resultsdir, "cell_densities_per_41_phenotype.pdf"),  height=5, width=15)
+png(file.path(params$resultsdir, "cell_densities_per_41_phenotype.png"),  height=600, width=1500)
+ggplot(data=melted.counts, aes(x=X1, y=value, fill=value)) +
+  geom_col(position = "dodge", aes(fill=factor(X1))) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  scale_x_discrete(labels=c("01","02","03","04","05","06","07","08","09","10",
+                            "11","12","13","14","15","16","17","18","19","20",
+                            "21","22","23","24","25","26","27","28","29","30",
+                            "31","32","33","34","35","36","37","38","39","40",
+                            "41")) +
+  theme(axis.text.x = element_text(size = 12)) + #10
+  theme(axis.text.y = element_text(size = 12)) + #10
+  theme(plot.title = element_text(hjust = 0.5, size = 22)) + #14
+  labs(title = "Cell densities [cells/mm²]", x = "", y = "") +
+  facet_wrap(~X2, ncol = 1, strip.position = "left") +
+  theme(strip.placement = "outside",strip.text.y.left = element_text(size = 18, angle = 0), #12
+        strip.background = element_rect(fill = "white")) +
+  theme(legend.position = "bottom", legend.title = element_blank()) +
+  scale_fill_manual(values= colours.key) +
+  ylim(0,1500) +
+  guides(fill=guide_legend(ncol=4)) +
+  guides(shape = guide_legend(override.aes = list(size = 2))) +
+  guides(color = guide_legend(override.aes = list(size = 2))) +
+  theme(legend.position = "none")
+dev.off()
+
+
+# phenotypes composition panel, for 43 phenotypes
+data.counts2 <- data.counts 
+melted.nw <- reshape::melt(data.counts2)  
+colnames(melted.nw) <- c('X1','X2','value')
+rev.ord <- rownames(data.counts)[c(41:1)]
+rev.farb2 <- colours.key[c(43:1)]
+melted.nw2 <- transform(melted.nw, X2=factor(X2, levels = c('CRC26LM','CRC26','CRC13','CRC04','CRC03','CRC02')),
+                          X1=factor(X1,levels= rev.ord))
+melted.nw33 <- melted.nw2 %>% group_by(X2) %>% mutate(ratio=(round(value*100/sum(value),2)))
+melted.nw3 <- NULL
+melted.nw3$ratio <- ifelse(melted.nw33$ratio<3, NA, paste0(melted.nw33$ratio,"%")) 
+
+melted.nw4 <- melted.nw33
+melted.nw4$ratio <- ifelse(melted.nw33$ratio<1, NA, paste0(melted.nw33$ratio,"%"))
+melted.nw4$phen <- rep(c(1:41),6)
+melted.nw4$phen <- sprintf("%02d", as.numeric(melted.nw4$phen))
+melted.nw4$phen <- ifelse(is.na(melted.nw4$ratio), NA, melted.nw4$phen) 
+
+#pdf(file.path(params$resultsdir, "41phenotypes_composition_panel_pr.pdf"), height=5, width=15,)
+png(file.path(params$resultsdir, "41phenotypes_composition_panel_pr.ng"), height=500, width=1500,)
+
+ggplot(melted.nw2, aes(fill=X1, x=X2, y=value)) + 
+    geom_bar(position="fill", stat="identity", color="white") +
+    geom_text(data=melted.nw4, aes(y=value,label=phen),
+            position=position_fill(vjust=0.5), size = 3) +
+    theme_void() +
+    theme(axis.text.y = element_text(size = 16)) +
+    theme(axis.text.x = element_text(size = 16,  hjust = 0.5, vjust = 1)) + 
+    theme(axis.title.y = element_text(angle = 90, size = 18)) +
+    theme(plot.title = element_text(size = 18)) +
+    labs(title = "",  x = "", y = "") +
+    labs (fill = "All phenotypes") +
+    theme(legend.position = "none") +
+    scale_y_continuous(labels=scales::percent) +
+    scale_fill_manual(values= rev.farb2) +
+    coord_flip()  
+
+ dev.off()
+
+
+full_plot <- 
+  ggplot(data=melted.counts, aes(x=X1, y=value, fill=value)) +
+  geom_col(position = "dodge", aes(fill=factor(X1))) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  scale_x_discrete(labels=c("01","02","03","04","05","06","07","08","09","10",
+                            "11","12","13","14","15","16","17","18","19","20",
+                            "21","22","23","24","25","26","27","28","29","30",
+                            "31","32","33","34","35","36","37","38","39","40",
+                            "41")) +
+  theme(axis.text.x = element_text(size = 10)) +
+  theme(axis.text.y = element_text(size = 10)) +
+  theme(plot.title = element_text(hjust = 0.5, size = 14)) +
+  labs(title = "Cell densities [cells/mm²]", x = "", y = "") +
+  facet_wrap(~X2, ncol = 1, strip.position = "left") +
+  theme(strip.placement = "outside",strip.text.y.left = element_text(size = 12, angle = 0),
+        strip.background = element_rect(fill = "white")) +
+  theme(legend.position = "bottom", legend.title = element_blank()) +
+  scale_fill_manual(values= colours.key) +
+  ylim(0,1500) +
+  guides(fill=guide_legend(ncol=4)) +
+  guides(shape = guide_legend(override.aes = list(size = 2))) +
+  guides(color = guide_legend(override.aes = list(size = 2))) +
+  theme(legend.text = element_text(size = 8)) +
+  theme(legend.position = "none") 
+
+for_first_legend <- melted.counts %>%
+    filter(X1 %in% c('01 - Tcells undefined', 
+                     '02 - Proliferating Tcells',
+                     '03 - CD8+ Tcells',
+                     '04 - Intraepithelial CD8+ Tcells',
+                     '05 - Intraepithelial CD4+PD1+ Tcells',
+                     '06 - CD4+ Tcells',
+                     '07 - CD8- Tcells',
+                     '08 - Tregs',
+                     '09 - ICOS+ Tregs',
+                     '10 - CD45RO undefined')) %>%
+    ggplot(aes(x=X1, y=value, fill=value)) +
+    geom_col(position = "dodge", aes(fill=factor(X1))) +
+    scale_fill_manual(values = colours.key[1:10]
+                      , name = "")
+
+for_second_legend <- melted.counts %>%
+    filter(X1 %in% c('11 - CD11c+ cells',
+                     '12 - VISTA+ CD31+CD38+ cells',
+                     '13 - ILC',
+                     '14 - CD163+HLA-DR+ macrophages',
+                     '15 - HLA-DR+ macrophages',
+                     '16 - CD11c+HLA-DR+ macrophages',
+                     '17 - Macrophages undefined',
+                     '18 - HLA-DR+ monocytes',
+                     '19 - Monocytes',
+                     '20 - Granulocytes')) %>%
+    ggplot(aes(x=X1, y=value, fill=value)) +
+    geom_col(position = "dodge", aes(fill=factor(X1))) +
+    scale_fill_manual(values = colours.key[11:20]
+                      , name = "")
+
+for_third_legend <- melted.counts %>%
+    filter(X1 %in% c('21 - Fibroblasts',
+                     '22 - HLA-DR+ fibroblasts',
+                     '23 - D2-40+ fibroblasts',
+                     '24 - D2-40+TGFb+ fibroblasts')) %>%
+    ggplot(aes(x=X1, y=value, fill=value)) +
+    geom_col(position = "dodge", aes(fill=factor(X1))) +
+    scale_fill_manual(values = colours.key[21:24]
+                      , name = "")
+
+for_fourth_legend <- melted.counts %>%
+    filter(X1 %in% c('25 - TGFb+ tumor cells',
+                     '26 - Bcat+FOXP3+PDL1+ tumor cells',
+                     '27 - Bcat+CD15+ tumor cells',
+                     '28 - Bcat+ proliferating tumor cells',
+                     '29 - Bcat+HLA-DR+ proliferating tumor cells',
+                     '30 - Bcat+HLA-DR+ tumor cells',
+                     '31 - Bcat+TGFb+ tumor cells',
+                     '32 - Bcat+ tumor cells',
+                     '33 - Bcat+HLA-DR+TGFb+ tumor cells',
+                     '34 - Bcat+TGFb+ proliferating tumor cells',
+                     '35 - Apoptotic Bcat+ proliferating tumor cells',
+                     '36 - Apoptotic Bcat+ tumor cells',
+                     '37 - Apoptotic Bcat+HLA-DR+ tumor cells')) %>%
+    ggplot(aes(x=X1, y=value, fill=value)) +
+    geom_col(position = "dodge", aes(fill=factor(X1))) +
+    scale_fill_manual(values = colours.key[25:37]
+                      , name = "")
+
+for_fifth_legend <- melted.counts %>%
+    filter(X1 %in% c('38 - Vessels',
+                     '39 - D2-40+ vessels',
+                     '40 - TGFb+ vessels',
+                     '41 - VISTA+ vessels')) %>%
+    ggplot(aes(x=X1, y=value, fill=value)) +
+    geom_col(position = "dodge", aes(fill=factor(X1))) +
+    scale_fill_manual(values = colours.key[38:41]
+                      , name = "")
+
+#pdf(file.path(params$resultsdir, "legend_in5columns_41pheno.pdf"), height=4, width=15,)
+png(file.path(params$resultsdir, "legend_in5columns_41pheno.png"), height=500, width=1500,)
+plot_grid(
+    get_legend(for_first_legend + theme(legend.justification = c(0.5,1) )),
+    get_legend(for_second_legend + theme(legend.justification = c(0.5,1) )),
+    get_legend(for_third_legend + theme(legend.justification = c(0.5,1) )),
+    get_legend(for_fourth_legend + theme(legend.justification = c(0.5,1) )),
+    get_legend(for_fifth_legend + theme(legend.justification = c(0.5,1) )),
+    nrow = 1)
+dev.off()
+
+
+dens.sub.4 <- dens.pheno.final43[3:10,]
+dens.sub.4b <- rbind(colSums(dens.sub.4[1:2,]), colSums(dens.sub.4[3:5,]), dens.sub.4[8,], colSums(dens.sub.4[6:7,]))
+rownames(dens.sub.4b) <- c("CD8+_Tcells","CD4+_Tcells", "CD45Ro_cells","Tregs")
+melted.dens.sub.4b <- reshape2::melt(as.matrix(dens.sub.4b))
+colnames(melted.dens.sub.4b) <- c("X1","X2","value")
+pdf(file.path(params$resultsdir, "cell_counts_per_4_phenotype.pdf"),  height=6, width=7)
+ggplot(data=melted.dens.sub.4b, aes(x=X2, y=value, fill=X1)) +
+  geom_col(position = "dodge", width = 0.9) +
+  scale_fill_manual(values= c("#CE2929","#428953",  "#77E599", "#A3DD57")) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  theme(axis.text.x = element_text(size = 26, angle = 60, hjust = 1)) +
+  theme(axis.text.y = element_text(size = 20)) +
+  theme(axis.title.y = element_text(size = 24),strip.background = element_rect(fill = "white")) +
+  theme(legend.title = element_blank()) +
+  theme(legend.text = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 26)) +
+  theme(title = element_text(size = 24))+
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(title = "", x = "", y = "Cell densities [cells/mm²]")
+
+dev.off()
+
+#write.csv(dens.pheno.final43, file.path(params$resultsdir,"Supplementary_File_5.csv"), row.names = TRUE)
+
+```
+
+6 markers immune vs tumor cells 
+```{r}
+im.area <- 1
+
+dens.tum.pdl1 <- matrix(0,1,length(name.list.samples))
+rownames(dens.tum.pdl1) <- "PDL1+ tumor cells"
+colnames(dens.tum.pdl1) <- name.list.samples
+dens.imu.pdl1 <- matrix(0,1,length(name.list.samples)) 
+rownames(dens.imu.pdl1) <- "PDL1+ immune cells"
+colnames(dens.imu.pdl1) <- name.list.samples
+
+dens.tum.pd1 <- matrix(0,1,length(name.list.samples)) 
+rownames(dens.tum.pd1) <- "PD1+ tumor cells"
+colnames(dens.tum.pd1) <- name.list.samples
+dens.imu.pd1 <- matrix(0,1,length(name.list.samples)) 
+rownames(dens.imu.pd1) <- "PD1+ immune cells"
+colnames(dens.imu.pd1) <- name.list.samples
+
+dens.tum.tim3 <- matrix(0,1,length(name.list.samples)) 
+rownames(dens.tum.tim3) <- "TIM3+ tumor cells"
+colnames(dens.tum.tim3) <- name.list.samples
+dens.imu.tim3 <- matrix(0,1,length(name.list.samples)) 
+rownames(dens.imu.tim3) <- "TIM3+ immune cells"
+colnames(dens.imu.tim3) <- name.list.samples
+
+dens.tum.lag3 <- matrix(0,1,length(name.list.samples)) 
+rownames(dens.tum.lag3) <- "LAG3+ tumor cells"
+colnames(dens.tum.lag3) <- name.list.samples
+dens.imu.lag3 <- matrix(0,1,length(name.list.samples)) 
+rownames(dens.imu.lag3) <- "LAG3+ immune cells"
+colnames(dens.imu.lag3) <- name.list.samples
+
+dens.tum.icos <- matrix(0,1,length(name.list.samples)) 
+rownames(dens.tum.icos) <- "ICOS+ tumor cells"
+colnames(dens.tum.icos) <- name.list.samples
+dens.imu.icos <- matrix(0,1,length(name.list.samples)) 
+rownames(dens.imu.icos) <- "ICOS+ immune cells"
+colnames(dens.imu.icos) <- name.list.samples
+
+dens.tum.ido <- matrix(0,1,length(name.list.samples)) 
+rownames(dens.tum.ido) <- "IDO+ tumor cells"
+colnames(dens.tum.ido) <- name.list.samples
+dens.imu.ido <- matrix(0,1,length(name.list.samples)) 
+rownames(dens.imu.ido) <- "IDO+ immune cells"
+colnames(dens.imu.ido) <- name.list.samples
+
+# crate character vectors for both immune and tumor phenotypes
+tumor.phenotypes <- c("Bcat+_FOXP3+_PDL1+_tum", "TGFb+_tum", "Bcat+_CD15+_tum", "Bcat+_Prol_tum", "Bcat+_HLA-DR+_Prol_tum",
+                              "Bcat+_HLA-DR+_tum", "Bcat+_TGFb+_tum", "Bcat+_tum", "Bcat+_Prol_TGFb+_tum", "Bcat+_HLA-DR+_TGFb+_tum",
+                              "Apoptotic_Bcat+_Prol_tum", "Apoptotic_Bcat+_tum", "Apoptotic_Bcat+_HLA-DR+_tum")
+
+immune.phenotypes <- c("Tcells_undefined", "Prol_Tcells", "CD8+_Tcells", "Intraepithelial_CD8+_Tcells", "Intraepithelial_CD4+_PD1+_Tcells",
+                       "CD4+_Tcells", "CD8-_Tcells", "Tregs", "ICOS+_Tregs", "CD45RO_undefined", "CD11c+_cells", "ILC",
+                       "CD163+_HLA-DR+_macrophages", "HLA-DR+_macrophages", "CD11c+_HLA-DR+_macrophages", "Macrophages_undefined",
+                       "HLA-DR+_monocytes", "Monocytes", "Granulocytes")
+
+
+
+
+for(i in 1:length(name.list.samples)){
+  tab01 <- read.csv(paste0(params$datadir, "/", name.list.samples[i], "_with_all_phenotypes_all_cells_18caths.csv"), 
+                    stringsAsFactors =FALSE, encoding = "UTF-8")
+  a <-0
+  b <-0
+  c <-0
+  d <-0
+  e <-0
+  f <-0
+  g <-0
+  h <-0
+  m <-0
+  n <-0
+  k <-0
+  l <-0
+
+df <- tab01
+df2 <- subset(df,  df$phenotype %in% tumor.phenotypes)
+df3 <- subset(df2, df2$PD.L1>0.1)
+a <- nrow(df3)
+  
+df2 <- subset(df,  df$phenotype %in% immune.phenotypes)
+df3 <- subset(df2, df2$PD.L1>0.1)
+b <- nrow(df3)
+  
+df2 <- subset(df,  df$phenotype %in% tumor.phenotypes)
+df3 <- subset(df2, df2$PD.1>0.1)
+c <- nrow(df3)
+  
+df2 <- subset(df,  df$phenotype %in% immune.phenotypes)
+df3 <- subset(df2, df2$PD.1>0.1)
+d <- nrow(df3)  
+
+df2 <- subset(df,  df$phenotype %in% tumor.phenotypes)
+df3 <- subset(df2, df2$TIM.3>0.1)
+e <- nrow(df3)
+  
+df2 <- subset(df,  df$phenotype %in% immune.phenotypes)
+df3 <- subset(df2, df2$TIM.3>0.1)
+f <- nrow(df3)
+
+df2 <- subset(df,  df$phenotype %in% tumor.phenotypes)
+df3 <- subset(df2, df2$LAG.3>0.1)
+g <- nrow(df3)
+  
+df2 <- subset(df,  df$phenotype %in% immune.phenotypes)
+df3 <- subset(df2, df2$LAG.3>0.1)
+h <- nrow(df3)
+  
+df2 <- subset(df,  df$phenotype %in% tumor.phenotypes)
+df3 <- subset(df2, df2$ICOS>0.1)
+m <- nrow(df3)
+  
+df2 <- subset(df,  df$phenotype %in% immune.phenotypes)
+df3 <- subset(df2, df2$ICOS>0.1)
+n <- nrow(df3)
+
+df2 <- subset(df,  df$phenotype %in% tumor.phenotypes)
+df3 <- subset(df2, df2$IDO>0.1)
+k <- nrow(df3)
+  
+df2 <- subset(df,  df$phenotype %in% immune.phenotypes)
+df3 <- subset(df2, df2$IDO>0.1)
+l <- nrow(df3)    
+
+  
+  dens.tum.pdl1[i] <- a/im.area     
+  dens.imu.pdl1 [i] <- b/im.area    
+  dens.tum.pd1[i] <- c/im.area      
+  dens.imu.pd1 [i] <- d/im.area     
+  dens.tum.tim3[i] <- e/im.area     
+  dens.imu.tim3 [i] <- f/im.area    
+  dens.tum.lag3[i] <- g/im.area     
+  dens.imu.lag3 [i] <- h/im.area    
+  dens.tum.icos[i] <- m/im.area     
+  dens.imu.icos [i] <- n/im.area    
+  dens.tum.ido[i] <- k/im.area      
+  dens.imu.ido [i] <- l/im.area     
+}
+
+dens.double2 <- rbind( dens.tum.pdl1, dens.imu.pdl1,
+                       dens.tum.pd1, dens.imu.pd1,
+                       dens.tum.tim3, dens.imu.tim3,
+                       dens.tum.lag3, dens.imu.lag3,
+                       dens.tum.icos, dens.imu.icos,
+                       dens.tum.ido, dens.imu.ido);
+
+dens.double.final2 <-as.data.frame(cbind(rowMeans(dens.double2[,9:16]),rowMeans(dens.double2[,40:44]),rowMeans(dens.double2[,1:8]),
+                              rowMeans(dens.double2[,17:24]),rowMeans(dens.double2[,25:31]),rowMeans(dens.double2[,32:39])))
+
+colnames(dens.double.final2) <- c('CRC02','CRC03','CRC04','CRC13','CRC26','CRC26LM')
+transp2 <- as.matrix(dens.double.final2[5:12,])
+colnames(transp2) <- organoids
+data.m5 <- reshape::melt(transp2)
+marker <- c(rep(c( "TIM3+", "TIM3+","LAG3+", "LAG3+", "ICOS+", "ICOS+","IDO+", "IDO+"),6))
+tissue <- c(rep(c("tumor cells", "immune cells"),24))
+data.m6 <- cbind(data.m5,marker, tissue)
+colnames(data.m6) <- c("X1","X2","value","marker", "tissue")
+data.m6 <- select(data.m6, X2:tissue)
+colnames(data.m6) <- c("organoid","count", "marker","tissue")
+#pdf(file.path(params$resultsdir, "cell_densities_4_markers_tum_imu.pdf"),  height=5, width=15)
+png(file.path(params$resultsdir, "cell_densities_4_markers_tum_imu.png"),  height=500, width=1500)
+ggplot(data=data.m6, aes(x=organoid, y=count, fill=tissue)) +
+  geom_col(position = "dodge", width = 0.5) +
+  scale_fill_manual(values = c("#F38722","blue"))  +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1, size = 26)) +
+  theme(axis.text.y = element_text(size = 24)) +
+  theme(axis.title.y = element_text(size = 24),strip.background = element_rect(fill = "white")) +
+  theme(legend.title = element_blank()) +
+  theme(legend.text = element_text(size = 16)) +
+  theme(legend.position = c(1,1), legend.justification = c(1,1)) +
+  theme(strip.text.x = element_text(size = 24)) +
+  theme(title = element_text(size = 24))+
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(title = "", x = "", y = "Cell densities [cells/mm²]") +
+  facet_wrap(~marker, nrow = 1)
+dev.off()
+
+
+transp3 <- as.matrix(dens.double.final2[1:4,])
+data.m7 <- reshape::melt(transp3)
+marker <- c(rep(c("PDL1+","PDL1+", "PD1+","PD1+"),6))
+tissue <- c(rep(c("tumor cells", "immune cells"),12))
+data.m8 <- cbind(data.m7,marker, tissue)
+colnames(data.m8) <- c("X1","X2","value","marker", "tissue")
+data.m8 <- select(data.m8, X2:tissue)
+colnames(data.m8) <- c("organoid","count", "marker","tissue")
+#pdf(file.path(params$resultsdir, "density_pd1_pdl1.pdf"), height = 8, width = 12)
+png(file.path(params$resultsdir, "density_pd1_pdl1.png"), height = 800, width = 1200)
+ggplot(data=data.m8, aes(x=organoid, y=count, fill=tissue)) +
+  geom_col(position = "dodge", width = 0.5) +
+  scale_fill_manual(values = c("#F38722","blue"))  +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1, size = 26)) +
+  theme(axis.text.y = element_text(size = 28)) + 
+  theme(axis.title.y = element_text(size = 28),strip.background = element_rect(fill = "white")) +
+  theme(legend.title = element_blank()) +
+  theme(legend.text = element_text(size = 20)) +
+  theme(legend.position = c(1,1), legend.justification = c(1,1)) +
+  theme(strip.text.x = element_text(size = 28)) +
+  theme(title = element_text(size = 32))+
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(title = "", x = "", y = "Cell densities [cells/mm²]") +
+  facet_wrap(~marker)
+dev.off()
+
+```
