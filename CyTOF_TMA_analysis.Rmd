@@ -2,8 +2,8 @@
 title: "CyTOF_TMA_analysis"
 author: "Z.Loncova"
 params:
-  datadir:  "../../../data/imaging/Single_cell_data_markers"
-  resultsdir: "../../../results/figures"  
+  datadir:  "./imaging/Single_cell_data_markers"
+  resultsdir: "./results/figures"
 ---
 
 Composition of immune cells
