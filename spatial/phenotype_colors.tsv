@@ -1,0 +1,45 @@
+number	celltype	color	cname	number_lumped	celltype_lumped	color_lumped	cname_lumped	celltype_class	color_celltype_class	exclude
+0	Tcells_undefined	#53F328	Tcells undefined	0	Tcells_undefined	#53F328	Undefined Tcells	Lymphocytes	#53F328	False
+1	Prol_Tcells	#62D243	proliferating Tcells	0	Tcells_undefined	#53F329	Undefined Tcells	Lymphocytes	#53F328	False
+2	CD8+_Tcells	#37FB03	CD8+ Tcells	1	CD8+Tcells	#7CFFFA	CD8+ Tcells	Lymphocytes	#53F328	False
+3	Intraepithelial_CD8+_Tcells	#299C0A	Intraepithelial CD8+ Tcells	1	CD8+Tcells	#7CFFFA	CD8+ Tcells	Lymphocytes	#53F328	False
+4	Intraepithelial_CD4+_PD1+_Tcells	#71BD5D	Intraepithelial CD4+PD1+ Tcells	2	CD4+Tcells	#005A01	CD4+ Tcells	Lymphocytes	#53F328	False
+5	CD4+_Tcells	#1D590D	CD4+ Tcells	2	CD4+Tcells	#005A02	CD4+ Tcells	Lymphocytes	#53F328	False
+6	CD8-_Tcells	#0F590D	CD8- Tcells	0	Tcells_undefined	#53F328	Undefined Tcells	Lymphocytes	#53F328	False
+7	Tregs	#478A44	Tregs	3	Tregs	#8E8E38	Tregs	Lymphocytes	#53F328	False
+8	ICOS+_Tregs	#043A02	ICOS+ Tregs	3	Tregs	#8E8E38	Tregs	Lymphocytes	#53F328	False
+9	CD45RO_undefined	#6AAB2F	CD45RO undefined	0	Tcells_undefined	#53F328	Undefined Tcells	Lymphocytes	#53F328	False
+10	CD11c+_cells	#5AA615	CD11c+ cells	4	Macrophages	#53AF77	Macrophages	Macrophages	#53AF77	False
+11	VISTA+_CD31+_CD38+_cells	#009FFA	VISTA+CD31+CD38+ cells	4	Macrophages	#53AF77	Macrophages	Macrophages	#53AF77	False
+12	ILC	#1F820A	ILC	4	Macrophages	#53AF77	Macrophages	Macrophages	#53AF77	False
+13	CD163+_HLA-DR+_macrophages	#0ACC55	CD163+HLA-DR+ macrophages	4	Macrophages	#53AF77	Macrophages	Macrophages	#53AF77	False
+14	HLA-DR+_macrophages	#13A14A	HLA-DR+ macrophages	4	Macrophages	#53AF77	Macrophages	Macrophages	#53AF77	False
+15	CD11c+_HLA-DR+_macrophages	#53D786	CD11c+HLA-DR+ macrophages	4	Macrophages	#53AF77	Macrophages	Macrophages	#53AF77	False
+16	Macrophages_undefined	#53AF77	Macrophages undefined	4	Macrophages	#53AF77	Macrophages	Macrophages	#53AF77	False
+17	HLA-DR+_monocytes	#46FBC3	HLA-DR+ monocytes	5	Monocytes	#FFDC3D	Monocytes	Macrophages	#53AF77	False
+18	Monocytes	#73D5F1	Monocytes	5	Monocytes	#FFDC3D	Monocytes	Macrophages	#53AF77	False
+19	Granulocytes	#2896E5	Granulocytes	6	Fibroblasts	#9873F1	Fibroblasts	Fibroblasts	#9873F1	False
+20	Fibroblasts	#9873F1	Fibroblasts	6	Fibroblasts	#9873F1	Fibroblasts	Fibroblasts	#9873F1	False
+21	HLA-DR+_fibroblasts	#754CDA	HLA-DR+ fibroblasts	6	Fibroblasts	#9873F1	Fibroblasts	Fibroblasts	#9873F1	False
+22	D2-40_fibroblasts	#5E3DAF	D2-40 fibroblasts	6	Fibroblasts	#9873F1	Fibroblasts	Fibroblasts	#9873F1	False
+23	D2-40+_TGFb+_fibroblasts	#062697	D2-40+TGFb+ fibroblasts	6	Fibroblasts	#9873F1	Fibroblasts	Fibroblasts	#9873F1	False
+24	TGFb+_tum	#B61818	TGFb+ tumor cells	6	Tumorcells	#F99E0B	Tumorcells	Tumorcells	#F99E0B	False
+25	Bcat+_FOXP3+_PDL1+_tum	#FB1313	Bcat+FOXP3+PDL1+ tumor cells	6	Tumorcells	#F99E0B	Tumorcells	Tumorcells	#F99E0B	False
+26	Bcat+_CD15+_tum	#BD2207	Bcat+CD15+ tumor cells	6	Tumorcells	#F99E0B	Tumorcells	Tumorcells	#F99E0B	False
+27	Bcat+_Prol_tum	#FF5004	Bcat+ proliferating tumor cells	6	Tumorcells	#F99E0B	Tumorcells	Tumorcells	#F99E0B	False
+28	Bcat+_HLA-DR+_Prol_tum	#F3842C	Bcat+HLA-DR+ proliferating tumor cells	6	Tumorcells	#F99E0B	Tumorcells	Tumorcells	#F99E0B	False
+29	Bcat+_HLA-DR+_tum	#F99E0B	Bcat+HLA-DR+ tumor cells	6	Tumorcells	#F99E0B	Tumorcells	Tumorcells	#F99E0B	False
+30	Bcat+_TGFb+_tum	#BB4B0B	Bcat+TGFb+ tumor cells	6	Tumorcells	#F99E0B	Tumorcells	Tumorcells	#F99E0B	False
+31	Bcat+_tum	#F77B13	Bcat+ tumor cells	6	Tumorcells	#F99E0B	Tumorcells	Tumorcells	#F99E0B	False
+32	Bcat+_HLA-DR+_TGFb+_tum	#F7A413	Bcat+HLA-DR+TGFb+ tumor cells	6	Tumorcells	#F99E0B	Tumorcells	Tumorcells	#F99E0B	False
+33	Bcat+_Prol_TGFb+_tum	#F7C613	proliferating Bcat+TGFb+ tumor cells	6	Tumorcells	#F99E0B	Tumorcells	Tumorcells	#F99E0B	False
+34	Apoptotic_Bcat+_Prol_tum	#C6A839	Apoptotic Bcat+ proliferating tumor cells	6	Tumorcells	#F99E0B	Tumorcells	Tumorcells	#F99E0B	False
+35	Apoptotic_Bcat+_tum	#C67939	Apoptotic Bcat+ tumor cells	6	Tumorcells	#F99E0B	Tumorcells	Tumorcells	#F99E0B	False
+36	Apoptotic_Bcat+_HLA-DR+_tum	#F39E0B	Apoptotic Bcat+HLA-DR+ tumor cells	6	Tumorcells	#F99E0B	Tumorcells	Tumorcells	#F99E0B	False
+37	Vessels	#C6398C	Vessels	7	Endothelial	#9F0560	Endothelial	Endothelial	#9F0560	False
+38	D2-40+_vessels	#F70795	D2-40+ vessels	7	Endothelial	#9F0560	Endothelial	Endothelial	#9F0560	False
+39	TGFb+_vessels	#9F0560	TGFb+ vessels	7	Endothelial	#9F0560	Endothelial	Endothelial	#9F0560	False
+40	VISTA+_vessels	#B831F7	VISTA+ vessels	7	Endothelial	#9F0560	Endothelial	Endothelial	#9F0560	False
+41	Unknown	#C2C2C2	Unknown	7	Endothelial	#9F0560	Endothelial	Endothelial	#9F0560	True
+42	CD57+_cells	#94FF33	CD57+ cells	0	Lymphocytes	#53F328	Lymphocytes	Lymphocytes	#53F328	True
+43	CD38+_cells	#4BD82E	CD38+ cells	4	Macrophages	#53AF77	Macrophages	Macrophages	#53AF77	True
