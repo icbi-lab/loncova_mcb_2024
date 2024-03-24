@@ -1,5 +1,7 @@
 # Spatial analyses of IMC
 
+This repo conatins an updated version of the scripts used in [Plattner et al. *iScience*. 2023](https://doi.org/10.1016/j.isci.2023.108399)
+
 We suggest to create a dedicated conda environment and install all software dependencies to run the IMC analysis
 python scripts therein.
 
