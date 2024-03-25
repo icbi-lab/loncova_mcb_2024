@@ -2,21 +2,21 @@
 title: "CyTOF_TMA_analysis"
 author: "Z.Loncova"
 params:
-  datadir:  "./imaging/Single_cell_data_markers"
+  datadir:  "./imaging/Single_cell_data_markers"    # step 2 in the manuscript: define the data (input) and output folders
   resultsdir: "./results/figures"
 ---
 
 Composition of immune cells
 ```{r setup, include=FALSE}
-library(rlang)
+library(rlang)   # step 3 in the manuscript: load the necessary R libraries
 library(dplyr)
 library(reshape)
 library(ggplot2)
 library(cowplot)
 
-if (!dir.exists(params$resultsdir)){ dir.create(params$resultsdir, recursive = T) }
+if (!dir.exists(params$resultsdir)){ dir.create(params$resultsdir, recursive = T) }   # step 4 in the manuscript: check if the folder exists and create it if not
 
-name.list.samples <- c(      
+name.list.samples <- c(      # step 5 in the manuscript: create the name list of all regions of interest
 "17_10053_ROI001",
 "17_10053_ROI002",
 "17_10053_ROI003",
@@ -63,7 +63,7 @@ name.list.samples <- c(
 "ROI005_17_9065_IM2" 
 )
 
-pheno <- NULL
+pheno <- NULL                                        # step 6 in the manuscript: search for unique category names in all .csv files
 for(j in 1:length(name.list.samples)){
   tab01 <- read.csv(paste0(params$datadir, "/", name.list.samples[j], "_with_all_phenotypes_all_cells_18caths.csv"), stringsAsFactors = FALSE, encoding = "UTF-8")
   pheno2<- unique(tab01$category)   
@@ -71,7 +71,7 @@ for(j in 1:length(name.list.samples)){
 }
 uniq.pheno <- sort(unique(pheno))
 
-dens.all <- matrix(0,1,length(name.list.samples)) 
+dens.all <- matrix(0,1,length(name.list.samples))                              # step 7 in the manuscript: count the number of cells for each of the 44 ROIs
 rownames(dens.all) <- "Total cell density"
 colnames(dens.all) <- name.list.samples
 dens.pheno <- matrix(0,length(uniq.pheno),length(name.list.samples))
@@ -86,7 +86,7 @@ for(i in 1:length(name.list.samples)){
   }
 }
 
-dens.pheno.final <-as.data.frame(cbind(rowMeans(dens.pheno[,9:16]),rowMeans(dens.pheno[,40:44]),rowMeans(dens.pheno[,1:8]),
+dens.pheno.final <-as.data.frame(cbind(rowMeans(dens.pheno[,9:16]),rowMeans(dens.pheno[,40:44]),rowMeans(dens.pheno[,1:8]),   # step 8 i nthe manuscript: sum up the couts for ROIS belonging to the one patient
                               rowMeans(dens.pheno[,17:24]),rowMeans(dens.pheno[,25:31]),rowMeans(dens.pheno[,32:39])))
 colnames(dens.pheno.final) <- c('CRC02','CRC03','CRC04','CRC13','CRC26','CRC26LM')
 dens.all.final <- as.data.frame(cbind(sum(dens.all[,9:16]),sum(dens.all[,40:44]),sum(dens.all[,1:8]),
@@ -99,7 +99,7 @@ organoids <-  c('CRC02','CRC03','CRC04','CRC13','CRC26','CRC26LM')
 Cell (phenotype) density
 ```{r}
 im.area <- (1000*1000)/1000000  
-pheno <- NULL
+pheno <- NULL                                   # step 9 in the manuscript: search for unique phenotype names in all .csv files
 for(j in 1:length(name.list.samples)){
   tab01 <- read.csv(paste0(params$datadir, "/", name.list.samples[j], "_with_all_phenotypes_all_cells_18caths.csv"), stringsAsFactors = FALSE,
                     encoding = "UTF-8")
@@ -160,7 +160,7 @@ colnames(dens.all) <- name.list.samples
 dens.pheno <- matrix(0,length(ordering),length(name.list.samples)) 
 rownames (dens.pheno) <- ordering
 colnames(dens.pheno) <- name.list.samples
-for(i in 1:length(name.list.samples)){
+for(i in 1:length(name.list.samples)){                          # step 10: count the number of cells for each of the 44 samples 
   tab01 <- read.csv(paste0(params$datadir, "/", name.list.samples[i], "_with_all_phenotypes_all_cells_18caths.csv"), stringsAsFactors = FALSE,
                     encoding = "UTF-8")
   dens.all[i] <- nrow(tab01)/im.area # all cells per sqmm
@@ -170,7 +170,7 @@ for(i in 1:length(name.list.samples)){
     }
 }   
 
-dens.pheno.final43 <- as.data.frame(cbind(rowMeans(dens.pheno[,9:16]),rowMeans(dens.pheno[,40:44]),rowMeans(dens.pheno[,1:8]),
+dens.pheno.final43 <- as.data.frame(cbind(rowMeans(dens.pheno[,9:16]),rowMeans(dens.pheno[,40:44]),rowMeans(dens.pheno[,1:8]),       # step 11: group the samples together that belong to one tumor/patient
                               rowMeans(dens.pheno[,17:24]),rowMeans(dens.pheno[,25:31]),rowMeans(dens.pheno[,32:39])))
 colnames(dens.pheno.final43) <- c('CRC02','CRC03','CRC04','CRC13','CRC26','CRC26LM')
 dens.all.final <- as.data.frame(cbind(sum(dens.all[,9:16]),sum(dens.all[,40:44]),sum(dens.all[,1:8]),
@@ -275,7 +275,7 @@ data.counts <- as.matrix(data.countss[1:41,])
 melted.counts <- reshape2::melt(data.counts)
 colnames(melted.counts) <- c("X1","X2","value")
 #pdf(file.path(params$resultsdir, "cell_densities_per_41_phenotype.pdf"),  height=5, width=15)
-png(file.path(params$resultsdir, "cell_densities_per_41_phenotype.png"),  height=600, width=1500)
+png(file.path(params$resultsdir, "cell_densities_per_41_phenotype.png"),  height=600, width=1500)        # step 12: plot the data
 ggplot(data=melted.counts, aes(x=X1, y=value, fill=value)) +
   geom_col(position = "dodge", aes(fill=factor(X1))) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
@@ -285,12 +285,12 @@ ggplot(data=melted.counts, aes(x=X1, y=value, fill=value)) +
                             "21","22","23","24","25","26","27","28","29","30",
                             "31","32","33","34","35","36","37","38","39","40",
                             "41")) +
-  theme(axis.text.x = element_text(size = 12)) + #10
-  theme(axis.text.y = element_text(size = 12)) + #10
-  theme(plot.title = element_text(hjust = 0.5, size = 22)) + #14
+  theme(axis.text.x = element_text(size = 12)) + 
+  theme(axis.text.y = element_text(size = 12)) + 
+  theme(plot.title = element_text(hjust = 0.5, size = 22)) + 
   labs(title = "Cell densities [cells/mm²]", x = "", y = "") +
   facet_wrap(~X2, ncol = 1, strip.position = "left") +
-  theme(strip.placement = "outside",strip.text.y.left = element_text(size = 18, angle = 0), #12
+  theme(strip.placement = "outside",strip.text.y.left = element_text(size = 18, angle = 0), 
         strip.background = element_rect(fill = "white")) +
   theme(legend.position = "bottom", legend.title = element_blank()) +
   scale_fill_manual(values= colours.key) +
@@ -482,7 +482,7 @@ dev.off()
 ```{r}
 im.area <- 1
 
-dens.tum.pdl1 <- matrix(0,1,length(name.list.samples))
+dens.tum.pdl1 <- matrix(0,1,length(name.list.samples))    # step 13: create empty matrices in order to count the tumor and immune cells positive for the particular markers
 rownames(dens.tum.pdl1) <- "PDL1+ tumor cells"
 colnames(dens.tum.pdl1) <- name.list.samples
 dens.imu.pdl1 <- matrix(0,1,length(name.list.samples)) 
@@ -537,7 +537,7 @@ immune.phenotypes <- c("Tcells_undefined", "Prol_Tcells", "CD8+_Tcells", "Intrae
 
 
 
-for(i in 1:length(name.list.samples)){
+for(i in 1:length(name.list.samples)){         # step 14: search for the lines that contain a particular phenotype name, either form the tumor cell group or immune cell group
   tab01 <- read.csv(paste0(params$datadir, "/", name.list.samples[i], "_with_all_phenotypes_all_cells_18caths.csv"), 
                     stringsAsFactors =FALSE, encoding = "UTF-8")
   a <-0
@@ -624,7 +624,7 @@ dens.double2 <- rbind( dens.tum.pdl1, dens.imu.pdl1,
                        dens.tum.icos, dens.imu.icos,
                        dens.tum.ido, dens.imu.ido);
 
-dens.double.final2 <-as.data.frame(cbind(rowMeans(dens.double2[,9:16]),rowMeans(dens.double2[,40:44]),rowMeans(dens.double2[,1:8]),
+dens.double.final2 <-as.data.frame(cbind(rowMeans(dens.double2[,9:16]),rowMeans(dens.double2[,40:44]),rowMeans(dens.double2[,1:8]),  # step 15: group samples together that belong to one tumor/patient 
                               rowMeans(dens.double2[,17:24]),rowMeans(dens.double2[,25:31]),rowMeans(dens.double2[,32:39])))
 
 colnames(dens.double.final2) <- c('CRC02','CRC03','CRC04','CRC13','CRC26','CRC26LM')
@@ -667,7 +667,7 @@ colnames(data.m8) <- c("X1","X2","value","marker", "tissue")
 data.m8 <- select(data.m8, X2:tissue)
 colnames(data.m8) <- c("organoid","count", "marker","tissue")
 #pdf(file.path(params$resultsdir, "density_pd1_pdl1.pdf"), height = 8, width = 12)
-png(file.path(params$resultsdir, "density_pd1_pdl1.png"), height = 800, width = 1200)
+png(file.path(params$resultsdir, "density_pd1_pdl1.png"), height = 800, width = 1200)    # step 16: plot the counts as barplots
 ggplot(data=data.m8, aes(x=organoid, y=count, fill=tissue)) +
   geom_col(position = "dodge", width = 0.5) +
   scale_fill_manual(values = c("#F38722","blue"))  +
