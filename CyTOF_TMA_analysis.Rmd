@@ -86,13 +86,64 @@ for(i in 1:length(name.list.samples)){
   }
 }
 
-dens.pheno.final <-as.data.frame(cbind(rowMeans(dens.pheno[,9:16]),rowMeans(dens.pheno[,40:44]),rowMeans(dens.pheno[,1:8]),   # step 8 i nthe manuscript: sum up the couts for ROIS belonging to the one patient
+dens.pheno.final <-as.data.frame(cbind(rowMeans(dens.pheno[,9:16]),rowMeans(dens.pheno[,40:44]),rowMeans(dens.pheno[,1:8]),   # step 8 in the manuscript: sum up the couts for ROIS belonging to the one patient
                               rowMeans(dens.pheno[,17:24]),rowMeans(dens.pheno[,25:31]),rowMeans(dens.pheno[,32:39])))
 colnames(dens.pheno.final) <- c('CRC02','CRC03','CRC04','CRC13','CRC26','CRC26LM')
 dens.all.final <- as.data.frame(cbind(sum(dens.all[,9:16]),sum(dens.all[,40:44]),sum(dens.all[,1:8]),
                               sum(dens.all[,17:24]),sum(dens.all[,25:31]),sum(dens.all[,32:39])))
 colnames(dens.all.final) <- c('CRC02','CRC03','CRC04','CRC13','CRC26','CRC26LM')
 organoids <-  c('CRC02','CRC03','CRC04','CRC13','CRC26','CRC26LM')
+
+write.csv(dens.pheno.final, file.path(params$resultsdir,"density.18.categories.csv"), row.names = TRUE)
+write.csv(dens.pheno.final43, file.path(params$resultsdir,"density.43.phenotypes.csv"), row.names = TRUE)
+
+colours.key.18 <- c(
+  '#FB1313',
+  '#53F328', 
+  '#299C0A',
+  '#0F590D',
+  '#5E3DAF',
+  '#73D5F1',
+  '#46FBC3',
+  '#94FF33',
+  '#043A02',
+  '#0ACC55',
+  '#53D786',
+  '#53AF77',
+  '#FF5004',
+  '#37FB03',
+  '#1F820A',
+  '#BD2207',
+  '#3E3D3D',
+  '#B831F7'
+)
+
+data.df <- reshape::melt(as.matrix(dens.pheno.final))
+colnames(data.df) <- c ("X1", "X2", "value")
+data.df2 <- transform(data.df, X2=factor(X2, levels = c('CRC26LM','CRC26','CRC13','CRC04','CRC03','CRC02')))
+
+png(file.path(params$resultsdir, "cell_densities_per_18_categories.png"),  height=600, width=900)
+ggplot(data=data.df2, aes(x=X1, y=value, fill=value)) +
+  geom_col(position = "dodge", aes(fill=factor(X1))) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+         panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1, size = 30)) +
+  theme(axis.text.x = element_text(size = 12)) + 
+  theme(axis.text.y = element_text(size = 12)) + 
+  theme(plot.title = element_text(hjust = 0.5, size = 22)) + 
+  labs(title = "Cell densities [cells/mm²] for 18 categories", x = "", y = "") +
+  facet_wrap(~X2, ncol = 1, strip.position = "left") +
+  theme(strip.placement = "outside",strip.text.y.left = element_text(size = 18, angle = 0), #12
+        strip.background = element_rect(fill = "white")) +
+  theme(legend.position = "bottom", legend.title = element_blank()) +
+  scale_fill_manual(values= colours.key.18) +
+  ylim(0,1500) +
+  guides(fill=guide_legend(ncol=4)) +
+  guides(shape = guide_legend(override.aes = list(size = 2))) +
+  guides(color = guide_legend(override.aes = list(size = 2))) +
+  theme(legend.position = "none")
+dev.off()
+
 ```
 
 
@@ -473,8 +524,6 @@ ggplot(data=melted.dens.sub.4b, aes(x=X2, y=value, fill=X1)) +
   labs(title = "", x = "", y = "Cell densities [cells/mm²]")
 
 dev.off()
-
-#write.csv(dens.pheno.final43, file.path(params$resultsdir,"Supplementary_File_5.csv"), row.names = TRUE)
 
 ```
 
