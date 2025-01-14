@@ -95,7 +95,6 @@ colnames(dens.all.final) <- c('CRC02','CRC03','CRC04','CRC13','CRC26','CRC26LM')
 organoids <-  c('CRC02','CRC03','CRC04','CRC13','CRC26','CRC26LM')
 
 write.csv(dens.pheno.final, file.path(params$resultsdir,"density.18.categories.csv"), row.names = TRUE)
-write.csv(dens.pheno.final43, file.path(params$resultsdir,"density.43.phenotypes.csv"), row.names = TRUE)
 
 colours.key.18 <- c(
   '#FB1313',
@@ -227,6 +226,7 @@ colnames(dens.pheno.final43) <- c('CRC02','CRC03','CRC04','CRC13','CRC26','CRC26
 dens.all.final <- as.data.frame(cbind(sum(dens.all[,9:16]),sum(dens.all[,40:44]),sum(dens.all[,1:8]),
                               sum(dens.all[,17:24]),sum(dens.all[,25:31]),sum(dens.all[,32:39])))
 colnames(dens.all.final) <- c('CRC02','CRC03','CRC04','CRC13','CRC26','CRC26LM')
+write.csv(dens.pheno.final43, file.path(params$resultsdir,"density.43.phenotypes.csv"), row.names = TRUE)
 
 colours.key <- c(                         
   '#53F328', 
