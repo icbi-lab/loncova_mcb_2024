@@ -1,9 +1,7 @@
 # Spatial analyses of IMC
 
-This repo conatins an updated version of the scripts used in [Plattner et al. *iScience*. 2023](https://doi.org/10.1016/j.isci.2023.108399)
-
 We suggest to create a dedicated conda environment and install all software dependencies to run the IMC analysis
-python scripts therein.
+python scripts therein. For more information about conda see [https://docs.conda.io](https://docs.conda.io)
 
 You can create a conda environment as follows
 
@@ -20,20 +18,34 @@ pip install pandas
 pip install seaborn
 ```
 
+## Clone this git repository
+
+Use the following git command to clone the repository
+
+```bash
+git clone https://github.com/icbi-lab/loncova_mcb_2024.git
+```
+
+now change to the repository using
+
+```bash
+cd loncova_mcb_2024
+```
+
 ## Obtain the data
 All preprocessed data required to run these analyses are available from [Zenodo](https://doi.org/10.5281/zenodo.7015015).
 
 ```bash
-cd ../
 wget -O imaging.zip 'https://zenodo.org/record/7015015/files/imaging.zip?download=1'
 unzip imaging.zip
-cd spatial
 ```
 
 ## Run the analyses
 To run the IMC voronoi analysis as described in the MCB chapter run the following commands:
 
 ```bash
+
+cd spatial
 
 mkdir -p ../results/spatial
 
